@@ -112,4 +112,24 @@ $('exportData').onclick=exportBackup;$('importData').onchange=e=>{if(e.target.fi
 $('generateReport').onclick=generateReport;$('timerStart').onclick=timerStart;$('timerReset').onclick=()=>{clearInterval(timerState.timer);timerState={phase:'READY',sec:0,round:0,running:false,timer:null};timerRender()};$('timerMode').onchange=e=>{if(e.target.value==='Tabata'){$('prep').value=10;$('work').value=20;$('rest').value=10;$('rounds').value=8}else{$('prep').value=10;$('work').value=30;$('rest').value=30;$('rounds').value=8}};
 // Restore legacy V1 backup shape if present under the old key.
 try{const legacy=localStorage.getItem('repforge-db-v5')||localStorage.getItem('repforge-db-v4');if(!localStorage.getItem(KEY)&&legacy){db=normalizeDb(JSON.parse(legacy));save()}}catch{}
-renderPeriodInputs();renderAll();timerRender();if(window.RepForgeSync?.setup)RepForgeSync.setup();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+renderPeriodInputs();renderAll();timerRender();if(window.RepForgeSync?.setup)RepForgeSync.setup();if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    // Force a check every time the app opens — a plain reopen is not
+    // reliable enough on its own (verified this the hard way on a related
+    // project: the browser does not always re-check sw.js bytes just
+    // because the page loaded again).
+    reg.update().catch(()=>{});
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw?.addEventListener('statechange',()=>{
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          nw.postMessage('skipWaiting');
+        }
+      });
+    });
+  }).catch(()=>{});
+  let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(reloaded)return;reloaded=true;location.reload();
+  });
+}
