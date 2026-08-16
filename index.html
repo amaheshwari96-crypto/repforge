@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="styles.css">
+<title>RepForge — Calisthenics Tracker</title>
+</head>
+<body>
+<header class="topbar">
+  <div><strong>REPFORGE</strong><h1>Calisthenics Tracker</h1></div>
+  <div class="topActions"><span id="syncStatus" class="syncStatus off">Cloud: offline</span><button class="iconbtn" id="syncOpen" aria-label="Account & sync">☁</button><button class="iconbtn" id="themeQuick" aria-label="Appearance">◐</button></div>
+</header>
+<main>
+<section id="log" class="view active">
+  <div class="datebar">
+    <button class="dateArrow" id="prevDay">‹</button>
+    <div class="datecenter"><small>TRAINING DATE</small><label><input id="datePicker" type="date"></label><b id="datePretty"></b></div>
+    <button class="dateArrow" id="nextDay">›</button>
+  </div>
+  <div class="exerciseTabs" id="exerciseTabs"></div>
+  <div class="heroSplit">
+    <div><small>SESSION TOTAL</small><strong id="sessionTotal">0</strong><span>reps</span></div>
+    <div class="vline"></div>
+    <div><small>LIFETIME</small><strong id="lifetimeTotal">0</strong><span>reps</span></div>
+  </div>
+  <div class="targetCard">
+    <div><small id="targetLabel">DAILY TARGET</small><strong id="targetActual">0 / 0</strong><span id="targetStatus">Target not set</span></div>
+    <div class="ring" id="targetRing"><b id="targetPct">0%</b></div>
+  </div>
+  <div class="entryCard">
+    <div class="sectionHead"><div><h2>Session entry</h2><p>Default: enter <b>reps per set × sets</b>. The total is calculated automatically.</p></div><button class="linkbtn" id="openEntry">Open entry</button></div>
+    <div class="quickGrid" id="quickGrid"></div>
+    <button class="outline full" id="singleSetBtn">Single set</button>
+  </div>
+  <div class="sessionCard">
+    <div class="sectionHead"><h2>Today's session</h2><b id="sessionCount">0 entries</b></div>
+    <div id="sessionEntries"></div>
+  </div>
+  <div class="dailyCard">
+    <div class="sectionHead"><h2>Daily notes & RPE</h2></div>
+    <div class="formgrid two"><label>RPE (1–10)<input id="dailyRpe" type="number" min="1" max="10" step="1" placeholder="Optional"></label><label>Workout note<input id="dailyNote" type="text" placeholder="Optional note"></label></div>
+  </div>
+  <button class="outline full" id="historyBtn">View history</button>
+</section>
+
+<section id="analytics" class="view">
+  <div class="pageHead"><div><small>PERFORMANCE</small><h1>Analytics</h1></div><select id="analyticsExercise"></select></div>
+  <div class="seg" id="analyticsPeriod"><button data-p="30">30D</button><button data-p="90">90D</button><button data-p="180">6M</button><button data-p="365" class="active">1Y</button></div>
+  <div class="metricGrid" id="analyticsMetrics"></div>
+  <div class="panel"><div class="sectionHead"><h2>Daily volume</h2><span id="chartCaption"></span></div><canvas id="volumeChart"></canvas></div>
+  <div class="panel"><h2>This week vs last week</h2><div class="compareGrid" id="weekCompare"></div></div>
+  <div class="panel"><h2>Target performance</h2><div id="targetPerformance"></div></div>
+  <div class="panel"><h2>Threshold days</h2><div class="thresholdForm"><label>Minimum daily reps<input id="thresholdValue" type="number" min="0" value="400"></label><label>Year<select id="thresholdYear"></select></label></div><div id="thresholdResult"></div></div>
+  <div class="panel"><h2>Annual summary</h2><select id="annualYear"></select><div id="annualSummary"></div></div>
+</section>
+
+<section id="timer" class="view">
+  <div class="pageHead"><div><small>TRAINING TIMER</small><h1>Interval</h1></div></div>
+  <div class="timerHero"><small id="timerPhase">READY</small><strong id="timerDisplay">00:00</strong><span id="timerRound">Round 0 / 0</span><div class="timerBtns"><button class="primary" id="timerStart">Start</button><button id="timerReset">Reset</button></div></div>
+  <div class="panel"><div class="formgrid two"><label>Mode<select id="timerMode"><option>Interval</option><option>Tabata</option></select></label><label>Prep<input id="prep" type="number" value="10" min="0"></label><label>Work<input id="work" type="number" value="30" min="1"></label><label>Rest<input id="rest" type="number" value="30" min="0"></label><label>Rounds<input id="rounds" type="number" value="8" min="1"></label></div></div>
+</section>
+
+<section id="more" class="view">
+  <div class="pageHead"><div><small>TOOLS & DATA</small><h1>More</h1></div></div>
+  <div class="menuGrid">
+    <button data-modal="targets"><b>Targets</b><small>Daily targets & target history</small></button>
+    <button data-modal="history"><b>History</b><small>Calendar & all training days</small></button>
+    <button data-modal="bulk"><b>Yearly bulk entry</b><small>Add historical annual totals</small></button>
+    <button data-modal="records"><b>Records</b><small>PRs & lifetime milestones</small></button>
+    <button data-modal="reports"><b>Reports</b><small>Monthly, quarterly & annual</small></button>
+    <button data-modal="data"><b>Backup & restore</b><small>Full phone-switch backup</small></button>
+    <button id="syncMoreBtn"><b>Account & sync</b><small>Firebase, Google Drive or local-only sync</small></button><button data-modal="appearance"><b>Appearance</b><small>Six themes</small></button>
+  </div>
+  <div class="infoPanel"><b>Local-first & private</b><p>RepForge remains local-first. Firebase cloud sync keeps the same account data available on desktop and phone. Full Backup remains available for independent recovery.</p></div>
+</section>
+</main>
+<nav class="bottomnav"><button data-view="log" class="active">Log</button><button data-view="analytics">Analytics</button><button data-view="timer">Timer</button><button data-view="more">More</button></nav>
+
+<!-- Entry -->
+<div class="modal" id="entryModal"><div class="sheet"><div class="sheetHead"><h2 id="entryTitle">Log workout</h2><button class="close">×</button></div>
+<label>Date<input type="date" id="logDate"></label><label>Exercise<select id="logExercise"></select></label>
+<div class="seg mode"><button data-mode="repeat" class="active">Repeated sets</button><button data-mode="single">Single set</button></div>
+<div id="repeatForm"><div class="formgrid two"><label>Reps per set<input id="rps" type="number" min="1" value="8"></label><label>Sets<input id="setCount" type="number" min="1" value="25"></label><label>Weight (kg)<input id="repeatWeight" type="number" min="0" step="0.5" value="0"></label></div><div class="calcBox">TOTAL <b id="repeatTotal">200</b> reps</div></div>
+<div id="singleForm" hidden><div class="formgrid two"><label>Reps<input id="singleReps" type="number" min="1" value="1"></label><label>Weight (kg)<input id="singleWeight" type="number" min="0" step="0.5" value="0"></label></div></div>
+<label>Entry note<textarea id="entryNote" rows="2" placeholder="Optional"></textarea></label>
+<button class="primary full" id="saveEntry">Add to session</button></div></div>
+
+<!-- Targets -->
+<div class="modal" id="targetsModal"><div class="sheet wide"><div class="sheetHead"><h2>Daily targets</h2><button class="close">×</button></div>
+<div class="targetSection"><h3>Default daily targets</h3><p class="muted">These are your baseline targets. Changing them does not rewrite historical dates that already have a target period.</p><div id="defaultTargetInputs" class="formgrid two"></div><button class="primary full" id="saveDefaults">Save default targets</button></div>
+<div class="targetSection"><h3>Single-day override</h3><p class="muted">Use this when one specific date has a different target.</p><label>Date<input type="date" id="targetDate"></label><div id="targetInputs" class="formgrid two"></div><button class="outline full" id="saveTargets">Save single-day override</button></div>
+<div class="targetSection"><h3>Target period</h3><p class="muted">Set a target for a date range, a year, or indefinitely from a date. Leave the end date blank for ongoing.</p><div class="formgrid two"><label>Start date<input type="date" id="periodStart"></label><label>End date<input type="date" id="periodEnd"></label></div><label>Quick duration<select id="periodPreset"><option value="custom">Custom</option><option value="year">Full calendar year</option><option value="ongoing">Ongoing from start</option></select></label><div id="periodTargetInputs" class="formgrid two"></div><button class="primary full" id="saveTargetPeriod">Save target period</button></div>
+<div class="targetSection"><h3>Target schedule</h3><div id="targetPeriodsList"></div></div>
+</div></div>
+
+<!-- History -->
+<div class="modal" id="historyModal"><div class="sheet wide"><div class="sheetHead"><h2>History</h2><button class="close">×</button></div><div class="monthbar"><button id="prevMonth">‹</button><b id="monthLabel"></b><button id="nextMonth">›</button></div><div class="weekdays"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="calendar" class="calendar"></div><div class="legend">Target met · Over · Short · No workout</div><div id="historyList"></div></div></div>
+
+<!-- Bulk -->
+<div class="modal" id="bulkModal"><div class="sheet"><div class="sheetHead"><h2>Yearly bulk entry</h2><button class="close">×</button></div><p class="muted">Use this for historical totals when daily records do not exist. These totals count toward lifetime and annual totals, but are not treated as individual workout days.</p><label>Year<select id="bulkYear"></select></label><div id="bulkInputs"></div><button class="primary full" id="saveBulk">Save annual totals</button><div id="bulkList"></div></div></div>
+
+<!-- Records -->
+<div class="modal" id="recordsModal"><div class="sheet wide"><div class="sheetHead"><h2>Records</h2><button class="close">×</button></div><div id="recordsContent"></div></div></div>
+
+<!-- Reports -->
+<div class="modal" id="reportsModal"><div class="sheet"><div class="sheetHead"><h2>Reports</h2><button class="close">×</button></div><div class="formgrid two"><label>Type<select id="reportType"><option>Monthly</option><option>Quarterly</option><option>Annual</option></select></label><label>Year<select id="reportYear"></select></label><label>Month<select id="reportMonth"></select></label><label>Quarter<select id="reportQuarter"><option>1</option><option>2</option><option>3</option><option>4</option></select></label></div><button class="primary full" id="generateReport">Generate PDF</button><p class="muted">The report uses jsPDF when available; otherwise it opens a print-ready report.</p></div></div>
+
+<!-- Data -->
+<div class="modal" id="dataModal"><div class="sheet"><div class="sheetHead"><h2>Backup & restore</h2><button class="close">×</button></div><div class="backupBox"><b>Full Backup</b><p>Includes logs, sets, weights, notes, daily RPE, targets and target history, yearly bulk totals, theme and app data.</p><button class="primary full" id="exportData">Export Full Backup</button></div><label class="file full">Restore Full Backup<input type="file" id="importData" accept=".json,application/json"></label><button class="danger full" id="clearData">Delete all data</button><p class="muted">On a new phone: install RepForge → More → Backup & restore → Restore Full Backup. Your complete tracker comes back in one operation.</p></div></div>
+
+<!-- Account & Sync -->
+<div class="modal" id="syncModal"><div class="sheet wide"><div class="sheetHead"><h2>Account & sync</h2><button class="close">×</button></div>
+<div class="syncHero"><small>SYNC PROVIDER</small><strong id="syncProviderText">Local only</strong><span id="syncStatusLarge">Your local data remains available offline.</span></div>
+<div class="targetSection"><h3>Choose your cloud</h3><label>Sync provider<select id="providerSelect"><option value="local">Local only</option><option value="firebase">Firebase / Firestore</option><option value="drive">Google Drive</option></select></label><p class="muted">Only one provider is active at a time. Your local database and Full Backup remain available regardless of provider.</p></div>
+<div id="signInBox" class="targetSection"><h3>Sign in to RepForge</h3><p class="muted">For Firebase, use the same email/password or Google account on every device.</p><label>Email<input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"></label><div class="formgrid two"><button class="primary" id="signIn">Sign in</button><button id="signUp">Create account</button></div><button class="outline full" id="googleSignIn">Continue with Google</button><button class="linkbtn full" id="resetPassword">Send password reset email</button></div>
+<div id="accountBox" class="targetSection" hidden><h3>Connected account</h3><p class="muted">Signed in as <b id="syncEmail2"></b>. Changes sync automatically when internet is available.</p><div class="syncStats"><div><small>Account</small><b id="syncEmail">—</b></div><div><small>Status</small><b id="syncStateText">—</b></div><div><small>Last sync</small><b id="lastSyncText">—</b></div></div><div class="formgrid two"><button class="primary" id="syncNow">Sync now</button><button id="signOut">Sign out</button></div></div>
+<div id="firebaseSection" class="targetSection"><h3>Firebase configuration</h3><p class="muted">Paste the Web App config from your Firebase project. Firestore rules protect each user's data.</p><textarea id="firebaseConfigText" rows="9" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea><button class="outline full" id="saveFirebaseConfig">Save Firebase configuration</button></div>
+<div id="driveSection" class="targetSection"><h3>Google Drive configuration</h3><p class="muted">Create a Google OAuth 2.0 Web Client ID with your deployed RepForge origin as an authorized JavaScript origin. RepForge uses the narrow <code>drive.file</code> scope and stores one RepForge cloud file in your Drive.</p><label>Google OAuth Web Client ID<input id="driveClientId" type="text" placeholder="1234567890-abc...apps.googleusercontent.com"></label><button class="primary full" id="saveDriveConfig">Save Google Drive configuration</button><button class="outline full" id="driveConnect">Connect Google Drive</button></div>
+<div id="localSection" class="targetSection"><h3>Local only</h3><p class="muted">No cloud account. RepForge remains fully usable on this device with local storage and Full Backup/Restore.</p></div>
+</div></div>
+
+<!-- Appearance -->
+<div class="modal" id="appearanceModal"><div class="sheet"><div class="sheetHead"><h2>Appearance</h2><button class="close">×</button></div><div id="themes" class="themeGrid"></div></div></div>
+
+<div id="restToast" class="restToast hidden"><div><small>REST TIMER</small><strong id="restSeconds">00:30</strong></div><button id="skipRest">Skip</button></div>
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+<script src="firebase-config.js"></script>
+<script src="sync.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="app.js"></script>
+</body></html>
